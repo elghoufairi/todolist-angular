@@ -1,0 +1,98 @@
+<!-- todo-app.component.html -->
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- todo-app.component.html -->
+
+<div class="col-md-12">
+    <div class="header-container mb-4">
+        <h2 class="header-text">Todo App</h2>
+    </div>
+</div>
+
+  
+        <div class="row">
+            <!-- To Do Column -->
+            <div class="col-md-4">
+                <div class="card border-primary mb-3">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">To Do</h4>
+                        <div class="input-group mb-3">
+                            <input [(ngModel)]="newTodo.task" placeholder="Add a new task" class="form-control" />
+                            <input type="date" [(ngModel)]="newTodo.date" class="form-control" />
+                            <div class="input-group-append">
+                                <button (click)="addTodo()" class="btn btn-success">Add</button>
+                            </div>
+                        </div>
+        
+                        <ul class="list-group">
+                            <li class="list-group-item todo-item" *ngFor="let todo of todos; let i = index" (click)="moveToDoing(i)">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="todo-task">{{ todo.task }}</span>
+                                        <span class="text-muted small" *ngIf="todo.date">Date: {{ todo.date | date:'shortDate' }}</span>
+                                        <span class="text-muted small">{{ calculateRemainingDays(todo.date) }}</span>
+                                    </div>
+                                    <button (click)="removeTodo(i)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Remove Task">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                    </div>
+                </div>
+            </div>
+  
+            <!-- Doing Column -->
+            <div class="col-md-4">
+                <div class="card border-warning mb-3">
+                    <div class="card-body">
+                        <h4 class="card-title text-warning">Doing</h4>
+        
+                        <ul class="list-group">
+                            <li class="list-group-item doing-item" *ngFor="let doingTask of doingTasks; let i = index" (click)="moveToDone(i)">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="todo-task">{{ doingTask.task }}</span>
+                                        <span class="text-muted small" *ngIf="doingTask.date">Date: {{ doingTask.date | date:'shortDate' }}</span>
+                                        <span class="text-muted small">{{ calculateRemainingDays(doingTask.date) }}</span>
+                                    </div>
+                                    <button (click)="removeDoingTask(i)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Remove Task">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+  
+            <!-- Done Column -->
+            <div class="col-md-4">
+                <div class="card border-success mb-3">
+                    <div class="card-body">
+                        <h4 class="card-title text-success">Done</h4>
+        
+                        <ul class="list-group">
+                            <li class="list-group-item done-item" *ngFor="let doneTask of doneTasks; let i = index">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="todo-task">{{ doneTask.task }}</span>
+                                        <span class="text-muted small" *ngIf="doneTask.date">Date: {{ doneTask.date | date:'shortDate' }}</span>
+                                        <span class="text-muted small">{{ calculateRemainingDays(doneTask.date) }}</span>
+                                        <span class="text-success" *ngIf="isTaskCompletedOnTime(doneTask.date)">You're good!</span>
+                                        <span class="text-danger" *ngIf="!isTaskCompletedOnTime(doneTask.date)">Overdue!</span>
+                                    </div>
+                                    <button (click)="removeDoneTask(i)" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Remove Task">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

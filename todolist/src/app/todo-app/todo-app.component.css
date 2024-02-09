@@ -1,0 +1,96 @@
+/* Add this to your styles.css or styles.scss */
+/* Add this to your styles.css or styles.scss */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+body{
+    background-color: #28a745;
+}
+.container {
+    background: linear-gradient(45deg, #007bff, #aa5f85); /* Mix of blue and yellow */
+    border-radius: 20px;
+}
+
+.card-title{
+    background-color: white;
+}
+/* Header styles */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px; /* Adjust the height as needed */
+}
+.header-text {
+    background-color: white;
+    border-radius: 20px;
+    padding: 15px;
+    animation: zoomInOut 2s ease infinite; /* Adjust the animation duration and properties as needed */
+    color: #007bff; /* Your preferred color */
+}
+.header-text:hover {
+    transform: scale(1.1);
+    color: red; /* Your preferred hover color */
+}   
+
+@keyframes zoomInOut {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+
+/* Card styles */
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+    font-size: 1.2rem;
+}
+
+/* Input and button styles */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.btn-success {
+    background-color: #28a745; /* Bootstrap success color */
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838; /* Darker shade on hover */
+    border-color: #218838;
+}
+
+.btn-danger {
+    background-color: #dc3545; /* Bootstrap danger color */
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333; /* Darker shade on hover */
+    border-color: #c82333;
+}
+
+/* List item styles */
+.list-group-item {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa; /* Bootstrap light color */
+}
+
+/* Trash icon styles */
+.fa-trash {
+    color: #fff; /* White icon color */
+}
