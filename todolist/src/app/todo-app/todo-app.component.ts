@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TaskService } from '../tasks.service';
-
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-todo-app',
@@ -11,35 +11,28 @@ export class TodoAppComponent implements OnInit {
   todos: { task: string; date: string }[] = [];
   doingTasks: { task: string; date: string }[] = [];
   doneTasks: { task: string; date: string }[] = [];
- 
+
   newTodo: any = {};
 
-  constructor(private taskService: TaskService ) {}
+  constructor(private taskService: TaskService) {}
 
   ngOnInit() {
-    this.taskService.getTasks().subscribe(
-      (tasks) => {
-        // Assign tasks to your component properties (e.g., todos, doingTasks, doneTasks)
-        this.todos = tasks.filter(task => !task.doing && !task.done);
-        this.doingTasks = tasks.filter(task => task.doing && !task.done);
-        this.doneTasks = tasks.filter(task => task.done);
-       // Fetch and assign tasks in the 'doing' status
-       this.taskService.getTasksInDoing().subscribe(
-        (doingTasks) => {
-          this.doingTasks = doingTasks;
-        },
-        (error) => {
-          console.error('Error fetching tasks in doing:', error);
-          // Handle error if needed
-        }
-      );
-    },
+    this.fetchTasks();
+    this.fetchDoingTasks();
+    this.fetchDoneTasks();
+  }
+
+  private fetchDoneTasks() {
+    this.taskService.getDoneTasks().subscribe(
+      (doneTasks) => {
+        this.doneTasks = doneTasks;
+      },
       (error) => {
-        console.error('Error fetching tasks:', error);
-        // Handle error if needed
+        console.error('Error fetching done tasks:', error);
       }
     );
   }
+
   private fetchTasks() {
     this.taskService.getTasks().subscribe(
       (tasks) => {
@@ -51,6 +44,7 @@ export class TodoAppComponent implements OnInit {
       }
     );
   }
+
   private fetchDoingTasks() {
     this.taskService.getTasksInDoing().subscribe(
       (doingTasks) => {
@@ -84,28 +78,23 @@ export class TodoAppComponent implements OnInit {
   }
 
   addTodo() {
-    // Assuming newTodo has 'task' and 'date' properties
     this.taskService.addTask(this.newTodo).subscribe(
       (response) => {
         console.log('Task added successfully', response);
-  
-        // Reload the page
-        window.location.reload();
+        this.fetchTasks(); // Reload the tasks after adding a new one
       },
       (error) => {
         console.error('Error adding task', error);
       }
     );
   }
-  
 
   removeTodo(index: number) {
-    // Update to remove the task from the server
     const taskToRemove = this.todos[index];
     this.taskService.removeTask(taskToRemove).subscribe(
       (response) => {
         console.log('Task removed successfully', response);
-        this.todos.splice(index, 1);
+        this.fetchTasks(); // Reload the tasks after removing one
       },
       (error) => {
         console.error('Error removing task', error);
@@ -114,14 +103,12 @@ export class TodoAppComponent implements OnInit {
   }
 
   moveToDoing(index: number) {
-    console.log('Moving to Doing:', this.todos[index]);
     const task = this.todos[index];
     this.taskService.moveTaskToDoing(task).subscribe(
       (response) => {
         console.log('Task moved to Doing successfully', response);
-        this.todos.splice(index, 1);
-        this.doingTasks.push(task);
-        console.log('Updated lists:', this.todos, this.doingTasks, this.doneTasks);
+        this.fetchTasks(); // Reload the tasks after moving one
+        this.fetchDoingTasks(); // Reload the doing tasks after moving one
       },
       (error) => {
         console.error('Error moving task to Doing', error);
@@ -129,19 +116,26 @@ export class TodoAppComponent implements OnInit {
     );
   }
 
-moveToDone(index: number) {
-  const task = this.doingTasks[index];
-  this.doingTasks.splice(index, 1);
-  this.doneTasks.push(task);
-}
+  moveToDone(index: number) {
+    const task = this.doingTasks[index];
+    this.taskService.moveTaskToDone(task).subscribe(
+      (response) => {
+        console.log('Task moved to Done successfully', response);
+        this.fetchDoingTasks(); // Reload the doing tasks after moving one
+        this.fetchDoneTasks(); // Reload the done tasks after moving one
+      },
+      (error) => {
+        console.error('Error moving task to Done', error);
+      }
+    );
+  }
 
   removeDoingTask(index: number) {
-    // Update to remove the task from 'Doing' on the server
     const taskToRemove = this.doingTasks[index];
     this.taskService.removeDoingTask(taskToRemove).subscribe(
       (response) => {
         console.log('Task removed from Doing successfully', response);
-        this.doingTasks.splice(index, 1);
+        this.fetchDoingTasks(); // Reload the doing tasks after removing one
       },
       (error) => {
         console.error('Error removing task from Doing', error);
@@ -150,12 +144,11 @@ moveToDone(index: number) {
   }
 
   removeDoneTask(index: number) {
-    // Update to remove the task from 'Done' on the server
     const taskToRemove = this.doneTasks[index];
     this.taskService.removeDoneTask(taskToRemove).subscribe(
       (response) => {
         console.log('Task removed from Done successfully', response);
-        this.doneTasks.splice(index, 1);
+        this.fetchDoingTasks(); // Reload the doing tasks after removing one
       },
       (error) => {
         console.error('Error removing task from Done', error);
