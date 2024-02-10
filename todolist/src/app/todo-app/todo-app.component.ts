@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { TaskService } from '../tasks.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-todo-app',
@@ -24,12 +23,8 @@ export class TodoAppComponent implements OnInit {
 
   private fetchDoneTasks() {
     this.taskService.getDoneTasks().subscribe(
-      (doneTasks) => {
-        this.doneTasks = doneTasks;
-      },
-      (error) => {
-        console.error('Error fetching done tasks:', error);
-      }
+      (doneTasks) => (this.doneTasks = doneTasks),
+      (error) => console.error('Error fetching done tasks:', error)
     );
   }
 
@@ -39,20 +34,14 @@ export class TodoAppComponent implements OnInit {
         this.todos = tasks.filter(task => !task.doing && !task.done);
         this.doneTasks = tasks.filter(task => task.done);
       },
-      (error) => {
-        console.error('Error fetching tasks:', error);
-      }
+      (error) => console.error('Error fetching tasks:', error)
     );
   }
 
   private fetchDoingTasks() {
     this.taskService.getTasksInDoing().subscribe(
-      (doingTasks) => {
-        this.doingTasks = doingTasks;
-      },
-      (error) => {
-        console.error('Error fetching tasks in doing:', error);
-      }
+      (doingTasks) => (this.doingTasks = doingTasks),
+      (error) => console.error('Error fetching tasks in doing:', error)
     );
   }
 
@@ -83,76 +72,57 @@ export class TodoAppComponent implements OnInit {
         console.log('Task added successfully', response);
         this.fetchTasks(); // Reload the tasks after adding a new one
       },
-      (error) => {
-        console.error('Error adding task', error);
-      }
+      (error) => console.error('Error adding task', error)
     );
   }
 
   removeTodo(index: number) {
     const taskToRemove = this.todos[index];
     this.taskService.removeTask(taskToRemove).subscribe(
-      (response) => {
-        console.log('Task removed successfully', response);
-        this.fetchTasks(); // Reload the tasks after removing one
-      },
-      (error) => {
-        console.error('Error removing task', error);
-      }
+      () => this.fetchTasks(), // Reload the tasks after removing one
+      (error) => console.error('Error removing task', error)
     );
   }
 
   moveToDoing(index: number) {
     const task = this.todos[index];
     this.taskService.moveTaskToDoing(task).subscribe(
-      (response) => {
-        console.log('Task moved to Doing successfully', response);
-        this.fetchTasks(); // Reload the tasks after moving one
-        this.fetchDoingTasks(); // Reload the doing tasks after moving one
+      () => {
+        // Remove the task from the todos array
+        this.todos.splice(index, 1);
+        // Reload the doing tasks after moving one
+        this.fetchDoingTasks();
       },
-      (error) => {
-        console.error('Error moving task to Doing', error);
-      }
+      (error) => console.error('Error moving task to Doing', error)
     );
   }
 
   moveToDone(index: number) {
     const task = this.doingTasks[index];
     this.taskService.moveTaskToDone(task).subscribe(
-      (response) => {
-        console.log('Task moved to Done successfully', response);
-        this.fetchDoingTasks(); // Reload the doing tasks after moving one
-        this.fetchDoneTasks(); // Reload the done tasks after moving one
+      () => {
+        // Remove the task from the doingTasks array
+        this.doingTasks.splice(index, 1);
+        // Reload the done tasks after moving one
+        this.fetchDoneTasks();
       },
-      (error) => {
-        console.error('Error moving task to Done', error);
-      }
+      (error) => console.error('Error moving task to Done', error)
     );
   }
 
   removeDoingTask(index: number) {
     const taskToRemove = this.doingTasks[index];
     this.taskService.removeDoingTask(taskToRemove).subscribe(
-      (response) => {
-        console.log('Task removed from Doing successfully', response);
-        this.fetchDoingTasks(); // Reload the doing tasks after removing one
-      },
-      (error) => {
-        console.error('Error removing task from Doing', error);
-      }
+      () => this.doingTasks.splice(index, 1), // Remove the task from the doingTasks array
+      (error) => console.error('Error removing task from Doing', error)
     );
   }
 
   removeDoneTask(index: number) {
     const taskToRemove = this.doneTasks[index];
     this.taskService.removeDoneTask(taskToRemove).subscribe(
-      (response) => {
-        console.log('Task removed from Done successfully', response);
-        this.fetchDoingTasks(); // Reload the doing tasks after removing one
-      },
-      (error) => {
-        console.error('Error removing task from Done', error);
-      }
+      () => this.fetchDoingTasks(), // Reload the doing tasks after removing one
+      (error) => console.error('Error removing task from Done', error)
     );
   }
 }

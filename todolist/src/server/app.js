@@ -61,25 +61,18 @@ function handleUpdateAndInsert(queryToUpdate, paramsToUpdate, queryToInsert, par
     });
   });
 }
-
 app.get('/tasks', (req, res) => {
-  const query = `
-    SELECT 'to_do' AS status, id, task, date FROM tasks
-    UNION ALL
-    SELECT 'doing' AS status, id, task, date FROM doing_tasks
-    UNION ALL
-    SELECT 'done' AS status, id, task, date FROM done_tasks
-  `;
-
-  connection.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching tasks:', err);
-      return res.status(500).json({ success: false, error: 'Internal Server Error' });
-    }
-    res.json(results);
+    const query = 'SELECT id, task, date FROM tasks';
+  
+    connection.query(query, (err, results) => {
+      if (err) {
+        console.error('Error fetching tasks:', err);
+        return res.status(500).json({ success: false, error: 'Internal Server Error' });
+      }
+      res.json(results);
+    });
   });
-});
-
+  
 app.get('/doing-tasks', (req, res) => {
   const query = 'SELECT id, task, date FROM doing_tasks';
 
@@ -166,17 +159,18 @@ app.put('/tasks/move-to-done/:taskId', (req, res) => {
   });
   
 
-app.delete('/tasks/remove-doing/:taskId', (req, res) => {
-  const taskId = req.params.taskId;
-
-  connection.query('DELETE FROM doing_tasks WHERE id = ?', [taskId], (err, result) => {
-    if (err) {
-      console.error('Error removing task from doing:', err);
-      return res.status(500).json({ success: false, error: 'Internal Server Error' });
-    }
-    res.json({ success: true });
+  app.delete('/tasks/remove-doing/:taskId', (req, res) => {
+    const taskId = req.params.taskId;
+  
+    connection.query('DELETE FROM doing_tasks WHERE id = ?', [taskId], (err, result) => {
+      if (err) {
+        console.error('Error removing task from doing:', err);
+        return res.status(500).json({ success: false, error: 'Internal Server Error' });
+      }
+      res.json({ success: true });
+    });
   });
-});
+  
 
 app.delete('/tasks/remove-done/:taskId', (req, res) => {
   const taskId = req.params.taskId;
@@ -190,29 +184,31 @@ app.delete('/tasks/remove-done/:taskId', (req, res) => {
   });
 });
 
-app.delete('/tasks/:status/:taskId', (req, res) => {
-  const { status, taskId } = req.params;
-  const table = determineTable(status);
-
-  if (!table) {
-    return res.status(400).json({ success: false, error: 'Invalid status' });
-  }
-
-  const query = `DELETE FROM ${table} WHERE id = ?`;
-
-  connection.query(query, [taskId], (err, result) => {
-    if (err) {
-      console.error('Error removing task:', err);
-      return res.status(500).json({ success: false, error: 'Internal Server Error' });
+app.get('/tasks/:taskId', (req, res) => {
+    const taskId = req.params.taskId;
+    const table = determineTable(req.params.status);
+  
+    if (!table) {
+      return res.status(400).json({ success: false, error: 'Invalid status' });
     }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, error: 'Task not found' });
-    }
-
-    res.json({ success: true });
+  
+    const query = `SELECT id, task, date FROM ${table} WHERE id = ?`;
+  
+    connection.query(query, [taskId], (err, result) => {
+      if (err) {
+        console.error('Error fetching task:', err);
+        return res.status(500).json({ success: false, error: 'Internal Server Error' });
+      }
+  
+      if (result.length === 0) {
+        return res.status(404).json({ success: false, error: 'Task not found' });
+      }
+  
+      res.json({ success: true, task: result[0] });
+    });
   });
-});
+  
+  
 
 function determineTable(status) {
   switch (status) {

@@ -19,7 +19,8 @@ export class TaskService {
   getTasksInDoing(): Observable<any[]> {
     return this.http.get<any[]>(this.doingTasksUrl);
   }
-  getDoneTasks(): Observable<any[]> { // Add this method
+
+  getDoneTasks(): Observable<any[]> {
     return this.http.get<any[]>(this.doneTasksUrl);
   }
 
